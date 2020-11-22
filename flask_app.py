@@ -18,7 +18,7 @@ def show_user_profile(username):
 
 
 # 在 Terminal 中，运行以下命令来运行该应用（ PyCharm 中自带的 Terminal 是可以的）
-# set FLASK_APP=hello.py
+# set FLASK_APP=flask_app.py
 # flask run
 # 然后在浏览器中访问 http://127.0.0.1:5000/ 即可
 # 注意这只是一个简单的内建服务器，只能用于测试，不能用于生产
