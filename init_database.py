@@ -18,15 +18,15 @@ def insert_into_table(table_name, values):
 
 user_table = '''create table user(
     id int primary key not null,
-    name text not null,
-    password text not null,
-    phone_num text not null,
+    name text not null, -- 注册必备
+    password text not null, -- 注册必备
+    phone_num text not null, -- 注册必备
     description char(100),
-    user_type int not null, -- 1：普通用户 2：管理员
-    identity_type int not null, -- 1：身份证 2：护照
-    identity_num text not null,
+    user_type int not null, -- 1：普通用户 2：管理员 管理员只能后台注册
+    identity_type int not null, -- 1：身份证 2：护照 注册必备
+    identity_num text not null, -- 注册必备
     level int, -- 1-3等级逐渐增大
-    city text not null,
+    city text not null, -- 注册必备
     signup_time text not null,
     modify_time text not null
 );'''
