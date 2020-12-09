@@ -64,7 +64,7 @@ class CheckUserSignin(restful.Resource):
         if userexist == 1:
             rightpassword = query_db('select count(*) as count from user where name = ? and password = ?', (args['name'], args['password']), onlyonerow=True)['count']
             if rightpassword == 1:
-                userinfo = query_db('select name, phone_num, description, level from user where name = ?', (args['name'],))
+                userinfo = query_db('select name, phone_num, description, user_type, identity_type, identity_num, level, city from user where name = ?', (args['name'],))
                 return {'result': 'success', 'userinfo': userinfo}
             else:
                 return {'result': 'fail', 'errMsg': 'wrong password'}
