@@ -82,9 +82,43 @@ class CheckUserSignin(restful.Resource):
             return {'result': 'fail', 'errMsg': 'user not exist'}
 
 
+class ChangeUserInfo(restful.Resource):
+    @use_args({
+        'user': fields.Str(required=True),
+        'password': fields.Str(required=True, allow_none=True),
+        'phone': fields.Str(required=True),
+        'description': fields.Str(required=True, allow_none=True)
+    }, location='json')
+    def post(self, args):
+        print(args['password'], args['phone'], args['description'], args['user'])
+        nowTime = query_db('select date("now") as now', onlyonerow=True)['now']
+        if args['password']:
+            changeuserinfo = 'update user set password = "' + args['password'] + '", phone_num = "' + args['phone'] + '", description = "' + args['description'] + '", modify_time = "' + nowTime + '" where name = "' + args['user'] + '"'
+            print(changeuserinfo)
+            c = g.db.cursor()
+            c.execute(changeuserinfo)
+            g.db.commit()
+        else:
+            changeuserinfo = 'update user set phone_num = "' + args['phone'] + '", description = "' + args['description'] + '", modify_time = "' + nowTime + '" where name = "' + args['user'] + '"'
+            print(changeuserinfo)
+            c = g.db.cursor()
+            c.execute(changeuserinfo)
+            g.db.commit()
+        
+        userinfo = query_db('select name, phone_num, description, user_type, identity_type, identity_num, level, city from user where name = ?', (args['user'],))
+        return {'result': 'success', 'userinfo': userinfo}
+
+
+class GetUserList(restful.Resource):
+    def get(self):
+        userinfo = query_db('select name, phone_num, description, user_type, identity_type, identity_num, level, city, modify_time from user')
+        return {'result': 'success', 'userinfo': userinfo}
+
+
 api.add_resource(HandleUserSignup, '/signup')
 api.add_resource(CheckUserSignin, '/signin')
-
+api.add_resource(ChangeUserInfo, '/changeuserinfo')
+api.add_resource(GetUserList, '/userlist')
 
 if __name__ == '__main__':
   app.run(host='0.0.0.0', debug=True)
