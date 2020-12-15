@@ -12,6 +12,16 @@ api = restful.Api(app)
 # 允许跨域请求，因为后端是运行在5000端口上的，而前端是3000端口
 flask_cors.CORS(app, supports_credentials=True)
 
+
+@app.route('/test')
+def show_test():
+    # show the user profile for that user
+    print("1")
+    return {
+        'result': 'success'
+    }
+
+
 @app.before_request
 def before_request():
   g.db = sqlite3.connect(DATABASE)
