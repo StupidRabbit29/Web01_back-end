@@ -64,6 +64,9 @@ class HandleUserSignup(restful.Resource):
             return {'result': 'success'}
 
 
+
+
+
 class CheckUserSignin(restful.Resource):
     @use_args({
         'name': fields.Str(required=True),
@@ -115,10 +118,47 @@ class GetUserList(restful.Resource):
         return {'result': 'success', 'userinfo': userinfo}
 
 
+
+
+
+
+
+class AddCallUp(restful.Resource):
+    @use_args({
+        'username': fields.Str(required=True),
+        'title': fields.Str(required=True),
+        'type': fields.Str(required=True),
+        'endtime': fields.Str(required=True),
+        'description': fields.Str(required=True),
+        'population': fields.Str(required=True),
+        'img': fields.Str(required=True)
+    }, location='json')
+
+    def post(self, args):
+        userexist = query_db('select count(*) as count from user where name = ?', (args['name'],), onlyonerow=True)['count']
+
+        userID = query_db('select id from user where name = ?', (args['username'], ), onlyonerow=True)['id']
+        newID = userNum + 1
+        userType = 1
+        nowTime = query_db('select date("now") as now', onlyonerow=True)['now']
+        values = '(' + str(newID) + ', "' + args['name'] + '", "' + args['password'] + '", "' + args[
+            'phone_num'] + '", "' + args['description'] + '", ' + str(userType) + ', ' + args['identity_type'] + ', "' + \
+                 args['identity_num'] + '", ' + str(1) + ', "' + args[
+                     'city'] + '", "' + nowTime + '", "' + nowTime + '")'
+        print(values)
+        c = g.db.cursor()
+        c.execute('insert into user values ' + values)
+        g.db.commit()
+        return {'result': 'success'}
+
+
 api.add_resource(HandleUserSignup, '/signup')
 api.add_resource(CheckUserSignin, '/signin')
 api.add_resource(ChangeUserInfo, '/changeuserinfo')
 api.add_resource(GetUserList, '/userlist')
+
+
+api.add_resource(AddCallUp, '/addcallup')
 
 if __name__ == '__main__':
   app.run(host='0.0.0.0', debug=True)
