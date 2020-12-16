@@ -31,10 +31,54 @@ user_table = '''create table user(
     modify_time text not null
 );'''
 
+callup_table = '''create table callup(
+    id              integer         primary key     autoincrement,
+    user_id         integer         not null,
+    name            text            not null,
+    type            integer         not null,
+    description     text            not null,
+    member          integer         not null,
+    end_time        text            not null,
+    img             text            not null,
+    create_time     text            not null,
+    modify_time     text            not null,
+    state           integer         not null,
+    foreign key (user_id) references user(id) on update cascade on delete cascade
+);'''
+
+callup_request = '''create table callup_request(
+    id              integer         primary key     autoincrement,
+    callup_id       integer         not null,
+    user_id         integer         not null,
+    description     text            not null,
+    create_time     text            not null,
+    modify_time     text            not null,
+    state           integer         not null,
+    foreign key (callup_id) references callup(id) on update cascade on delete cascade, 
+    foreign key (user_id) references user(id) on update cascade on delete cascade
+);'''
+
+
 user_HHX = '(1, "HHX", "hhx100", "12345678910", "", 2, 1, 111111111111111111, 3, "beijing", "2020-12-5", "2020-12-5")'
 user_FB = '(2, "FB", "fb100", "12345678911", "", 2, 1, 111111111111111112, 3, "beijing", "2020-12-5", "2020-12-5")'
 
+callup_1 = '(1, 3, "求web开发家教", 1, "找web前端工程师，辅导如何设计好看的前端，有偿！", 1, "2020-12-16", "webteacher.jpg", "2020-12-5", "2020-12-5", 2)'
+callup_2 = '(2, 3, "求python开发家教", 1, "找python工程师，辅导，有偿！", 1, "2020-12-25", "pythonteacher.jpg", "2020-12-5", "2020-12-5", 2)'
+callup_3 = '(3, 4, "求C++开发家教", 1, "找C++工程师，辅导，有偿！", 1, "2020-12-29", "cppteacher.jpg", "2020-12-5", "2020-12-5", 2)'
+
+callup_req_1 = '(1, 2, 4, "我python贼好", "2020-12-14", "2020-12-14", 1)'
+callup_req_2 = '(2, 2, 5, "我python更好", "2020-12-14", "2020-12-14", 1)'
+callup_req_3 = '(3, 3, 3, "我会React", "2020-12-14", "2020-12-14", 1)'
 
 if __name__ == '__main__':
-    insert_into_table("user", user_HHX)
-    insert_into_table("user", user_FB)
+    # create_table(callup_request)
+
+    # insert_into_table("user", user_HHX)
+    # insert_into_table("user", user_FB)
+    # insert_into_table("callup", callup_1)
+    # insert_into_table("callup", callup_2)
+    # insert_into_table("callup", callup_3)
+    # insert_into_table("callup_request", callup_req_1)
+    # insert_into_table("callup_request", callup_req_2)
+    # insert_into_table("callup_request", callup_req_3)
+

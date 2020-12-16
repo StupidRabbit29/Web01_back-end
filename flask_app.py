@@ -12,16 +12,6 @@ api = restful.Api(app)
 # 允许跨域请求，因为后端是运行在5000端口上的，而前端是3000端口
 flask_cors.CORS(app, supports_credentials=True)
 
-
-@app.route('/test')
-def show_test():
-    # show the user profile for that user
-    print("1")
-    return {
-        'result': 'success'
-    }
-
-
 @app.before_request
 def before_request():
   g.db = sqlite3.connect(DATABASE)
@@ -62,9 +52,6 @@ class HandleUserSignup(restful.Resource):
             c.execute('insert into user values ' + values)
             g.db.commit()
             return {'result': 'success'}
-
-
-
 
 
 class CheckUserSignin(restful.Resource):
@@ -152,10 +139,44 @@ class AddCallUp(restful.Resource):
         return {'result': 'success'}
 
 
+class GetCallupList(restful.Resource):
+    def get(self):
+        callupinfo = query_db('select callup.id as id, user.name as owner, user.id as owner_id, callup.name as name, callup.type as type, user.city as city, callup.description as description, callup.member as member, end_time, img, create_time as ctime, callup.modify_time as mtime from user inner join callup on user.id = callup.user_id')
+        for i in range(len(callupinfo)):
+            callupinfo[i]['requests'] = query_db('select * from callup_request where callup_id = ?', (callupinfo[i]['id'],))
+        return {'result': 'success', 'callupinfo': callupinfo}
+
+
+# class GetMyCallupList(restful.Resource):
+#     @use_args({
+#         'name': fields.Str(required=True)
+#     }, location='query')
+#     def get(self, args):
+#         mycallupinfo = query_db('select callup.id as id, user.name as owner, callup.name as name, callup.type as type, callup.description as description, callup.member as member, end_time, img, create_time as ctime, callup.modify_time as mtime, state from user inner join callup on user.id = callup.user_id where user.name = ?', (args['name'],))
+#         print(mycallupinfo)
+#         for i in range(len(mycallupinfo)):
+#             mycallupinfo[i]['requests'] = query_db('select * from callup_request where callup_id = ?', (mycallupinfo[i]['id'],))
+#         return {'result': 'success', 'mycallupinfo': mycallupinfo}
+
+
+# class GetMyReqList(restful.Resource):
+#     @use_args({
+#         'name': fields.Str(required=True)
+#     }, location='query')
+#     def get(self, args):
+#         myID = query_db('select id from user where name = ?', (args['name'],), onlyonerow=True)['id']
+#         # myrequest = query_db('select * from callup_request where user_id = ?', (myID,))
+#         myreqinfo = query_db('select callup.id as id, callup.name as name, callup.type as type, callup.description as description, callup.member as member, callup.end_time as end_time, img, callup.create_time as ctime, callup.modify_time as mtime, callup.state as state, callup_request.description as reqdescription, callup_request.create_time as reqctime, callup_request.modify_time as reqmtime, callup_request.state as reqstate from callup_request inner join callup on callup.id = callup_request.callup_id where callup_request.user_id = ?', (myID,))
+#         return {'result': 'success', 'myreqinfo': myreqinfo}
+
+
 api.add_resource(HandleUserSignup, '/signup')
 api.add_resource(CheckUserSignin, '/signin')
 api.add_resource(ChangeUserInfo, '/changeuserinfo')
 api.add_resource(GetUserList, '/userlist')
+api.add_resource(GetCallupList, '/calluplist')
+# api.add_resource(GetMyCallupList, '/mycalluplist')
+# api.add_resource(GetMyReqList, '/myreqlist')
 
 
 api.add_resource(AddCallUp, '/addcallup')
