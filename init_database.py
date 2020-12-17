@@ -42,7 +42,7 @@ callup_table = '''create table callup(
     img             text            not null,
     create_time     text            not null,
     modify_time     text            not null,
-    state           integer         not null,
+    state           integer         not null,       -- 1:已完成 2:待响应 3:已取消 4:到期未达成
     foreign key (user_id) references user(id) on update cascade on delete cascade
 );'''
 
@@ -53,7 +53,7 @@ callup_request = '''create table callup_request(
     description     text            not null,
     create_time     text            not null,
     modify_time     text            not null,
-    state           integer         not null,
+    state           integer         not null,       -- 1:待处理 2:同意 3:拒绝 4:取消
     foreign key (callup_id) references callup(id) on update cascade on delete cascade, 
     foreign key (user_id) references user(id) on update cascade on delete cascade
 );'''
