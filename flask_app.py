@@ -98,6 +98,69 @@ class GetUserList(restful.Resource):
         return {'result': 'success', 'userinfo': userinfo}
 
 
+class AddCallUp(restful.Resource):
+    @use_args({
+        'username': fields.Str(required=True),
+        'title': fields.Str(required=True),
+        'type': fields.Str(required=True),
+        'endtime': fields.Str(required=True),
+        'description': fields.Str(required=True),
+        'population': fields.Str(required=True),
+        'img': fields.Str(required=True)
+    }, location='json')
+
+    def post(self, args):
+        userID = str(query_db('select id from user where name = ?', (args['username'], ), onlyonerow=True)['id'])
+        name = args['title']
+        type = str(args['type'])
+        description = args['description']
+        member = str(args['population'])
+        endTime = args['endtime']
+        img = args['img']
+        createTime = query_db('select date("now") as now', onlyonerow=True)['now']
+        modifyTime = createTime
+        state = str(2)
+
+        print(userID, name, type, description, member, endTime, img, createTime, modifyTime, state)
+        c = g.db.cursor()
+        c.execute('''insert into callup (user_id,name,type,description,member,end_time,img,create_time,
+        modify_time,state) values (?,?,?,?,?,?,?,?,?,?)''',
+                  (userID, name, type, description, member, endTime, img, createTime, modifyTime, state))
+        g.db.commit()
+        return {'result': 'success'}
+
+
+class ChangeCallUp(restful.Resource):
+    @use_args({
+        'id': fields.Str(required=True),
+        'title': fields.Str(required=True),
+        'type': fields.Str(required=True),
+        'endtime': fields.Str(required=True),
+        'description': fields.Str(required=True),
+        'population': fields.Str(required=True),
+        'img': fields.Str(required=True)
+    }, location='json')
+
+    def post(self, args):
+        id = args['id']
+        name = args['title']
+        type = str(args['type'])
+        description = args['description']
+        member = str(args['population'])
+        endTime = args['endtime']
+        img = args['img']
+        modifyTime = query_db('select date("now") as now', onlyonerow=True)['now']
+
+        print(id, name, type, description, member, endTime, img, modifyTime)
+        c = g.db.cursor()
+        c.execute('''
+            update callup 
+            set name=?,type=?,description=?,member=?,end_time=?,img=?,modify_time=?
+            where id=?''', (name, type, description, member, endTime, img, modifyTime, id))
+        g.db.commit()
+        return {'result': 'success'}
+
+
 class GetCallupList(restful.Resource):
     def get(self):
         callupinfo = query_db('select callup.id as id, user.name as owner, user.id as owner_id, callup.name as name, callup.type as type, user.city as city, callup.description as description, callup.member as member, end_time, img, create_time as ctime, callup.modify_time as mtime from user inner join callup on user.id = callup.user_id')
@@ -105,6 +168,7 @@ class GetCallupList(restful.Resource):
             callupinfo[i]['requests'] = query_db('select c.id as id, c.user_id as user_id, u.name as user_name, c.description as description, c.state as state from callup_request as c inner join user as u on c.user_id = u.id where callup_id = ?', (callupinfo[i]['id'],))
 
         return {'result': 'success', 'callupinfo': callupinfo}
+
 
 class AddRequest(restful.Resource):
     @use_args({
@@ -156,6 +220,9 @@ api.add_resource(GetCallupList, '/calluplist')
 api.add_resource(AddRequest, '/addreq')
 api.add_resource(ChangeRequest, '/changereq')
 api.add_resource(ManageRequest, '/managereq')
+
+api.add_resource(AddCallUp, '/addcallup')
+api.add_resource(ChangeCallUp, '/changecallup')
 
 if __name__ == '__main__':
   app.run(host='0.0.0.0', debug=True)
