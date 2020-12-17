@@ -71,6 +71,7 @@ callup_req_2 = '(2, 2, 5, "我python更好", "2020-12-14", "2020-12-14", 1)'
 callup_req_3 = '(3, 3, 3, "我会React", "2020-12-14", "2020-12-14", 1)'
 
 if __name__ == '__main__':
+    pass
     # create_table(callup_request)
 
     # insert_into_table("user", user_HHX)

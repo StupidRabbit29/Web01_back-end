@@ -122,19 +122,22 @@ class AddCallUp(restful.Resource):
     }, location='json')
 
     def post(self, args):
-        userexist = query_db('select count(*) as count from user where name = ?', (args['name'],), onlyonerow=True)['count']
+        userID = str(query_db('select id from user where name = ?', (args['username'], ), onlyonerow=True)['id'])
+        name = args['title']
+        type = str(args['type'])
+        description = args['description']
+        member = str(args['population'])
+        endTime = args['endtime']
+        img = args['img']
+        createTime = query_db('select date("now") as now', onlyonerow=True)['now']
+        modifyTime = createTime
+        state = str(2)
 
-        userID = query_db('select id from user where name = ?', (args['username'], ), onlyonerow=True)['id']
-        newID = userNum + 1
-        userType = 1
-        nowTime = query_db('select date("now") as now', onlyonerow=True)['now']
-        values = '(' + str(newID) + ', "' + args['name'] + '", "' + args['password'] + '", "' + args[
-            'phone_num'] + '", "' + args['description'] + '", ' + str(userType) + ', ' + args['identity_type'] + ', "' + \
-                 args['identity_num'] + '", ' + str(1) + ', "' + args[
-                     'city'] + '", "' + nowTime + '", "' + nowTime + '")'
-        print(values)
+        print(userID, name, type, description, member, endTime, img, createTime, modifyTime, state)
         c = g.db.cursor()
-        c.execute('insert into user values ' + values)
+        c.execute('''insert into callup (user_id,name,type,description,member,end_time,img,create_time,
+        modify_time,state) values (?,?,?,?,?,?,?,?,?,?)''',
+                  (userID, name, type, description, member, endTime, img, createTime, modifyTime, state))
         g.db.commit()
         return {'result': 'success'}
 
