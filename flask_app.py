@@ -16,10 +16,12 @@ flask_cors.CORS(app, supports_credentials=True)
 def before_request():
   g.db = sqlite3.connect(DATABASE)
 
+git
 @app.teardown_request
 def teardown_request(exception):
   if hasattr(g, 'db'):
     g.db.close()
+
 
 def query_db(query, args=(), onlyonerow=False):
     c = g.db.execute(query, args)
