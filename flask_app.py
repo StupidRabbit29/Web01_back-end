@@ -69,6 +69,8 @@ class HandleUserSignup(restful.Resource):
             newID = userNum + 1
             userType = 1
             nowTime = query_db('select date("now") as now', onlyonerow=True)['now']
+            values = '(' + str(newID) + ', "' + args['name'] + '", "' + args['password'] + '", "' + args['phone_num'] + '", "' + args['description'] + '", ' + str(userType) + ', ' + args['identity_type'] + ', "' + args['identity_num'] + '", ' + str(1) + ', "' + args['city'] + '", "' + nowTime + '", "' + nowTime + '")'
+            print(values)
             c = g.db.cursor()
             c.execute('insert into user (id, name, password, phone_num, description, user_type, identity_type, identity_num, level, city, signup_time, modify_time) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (newID, args['name'], args['password'], args['phone_num'], args['description'], userType, args['identity_type'], args['identity_num'], 1, args['city'], nowTime, nowTime))
             g.db.commit()
@@ -101,12 +103,17 @@ class ChangeUserInfo(restful.Resource):
         'description': fields.Str(required=True, allow_none=True)
     }, location='json')
     def post(self, args):
+        print(args['password'], args['phone'], args['description'], args['user'])
         nowTime = query_db('select date("now") as now', onlyonerow=True)['now']
         if args['password']:
+            changeuserinfo = 'update user set password = "' + args['password'] + '", phone_num = "' + args['phone'] + '", description = "' + args['description'] + '", modify_time = "' + nowTime + '" where name = "' + args['user'] + '"'
+            print(changeuserinfo)
             c = g.db.cursor()
             c.execute('update user set password = ?, phone_num = ? , description = ? , modify_time = ? where name = ?', (args['password'], args['phone'], args['description'], nowTime, args['user']))
             g.db.commit()
         else:
+            changeuserinfo = 'update user set phone_num = "' + args['phone'] + '", description = "' + args['description'] + '", modify_time = "' + nowTime + '" where name = "' + args['user'] + '"'
+            print(changeuserinfo)
             c = g.db.cursor()
             c.execute('update user set phone_num = ? , description = ? , modify_time = ? where name = ?', (args['phone'], args['description'], nowTime, args['user']))
             g.db.commit()
@@ -119,6 +126,11 @@ class GetUserList(restful.Resource):
     def get(self):
         userinfo = query_db('select name, phone_num, description, user_type, identity_type, identity_num, level, city, modify_time from user')
         return {'result': 'success', 'userinfo': userinfo}
+
+
+
+
+
 
 
 class AddCallUp(restful.Resource):
@@ -184,6 +196,7 @@ class ChangeCallUp(restful.Resource):
         return {'result': 'success'}
 
 
+
 class GetCallupList(restful.Resource):
     def get(self):
         callupinfo = query_db('select callup.id as id, user.name as owner, user.id as owner_id, callup.name as name, callup.type as type, user.city as city, callup.description as description, callup.member as member, end_time, img, create_time as ctime, callup.modify_time as mtime from user inner join callup on user.id = callup.user_id')
@@ -234,46 +247,13 @@ class ManageRequest(restful.Resource):
         return {'result': 'success'}
 
 
-
-
-# class Receive(restful.Resource):
-#     @use_args({
-#         'pic': fields.Str(required=True),
-#     }, location='json')
-#
-#     def post(self, args):
-#         #id = args['id']
-#
-#         print("hao")
-#         return {'result': 'nb'}
-
-
-
-# class Test(restful.Resource):
-#     @use_args({
-#         'head': fields.Str(required=True),
-#         'title': fields.Str(required=True),
-#         'file': fields.Str(required=True),
-#     }, location='json')
-#
-#     def post(self, args):
-#         head = args['head']
-#         title = args['title']
-#         file = args['file']
-#         print('head=', head, 'title=', title)
-#         print(file)
-#         return {'result': 'success'}
-
-
-
-
-
-
 api.add_resource(HandleUserSignup, '/signup')
 api.add_resource(CheckUserSignin, '/signin')
 api.add_resource(ChangeUserInfo, '/changeuserinfo')
 api.add_resource(GetUserList, '/userlist')
 api.add_resource(GetCallupList, '/calluplist')
+# api.add_resource(GetMyCallupList, '/mycalluplist')
+# api.add_resource(GetMyReqList, '/myreqlist')
 
 api.add_resource(AddRequest, '/addreq')
 api.add_resource(ChangeRequest, '/changereq')
