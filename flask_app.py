@@ -28,7 +28,7 @@ def ttt():
 
     return {'result': 'success'}
 
-    # 接收post请求上传的文件
+    # 接收post请求上传的文件 test test
     # file = request.files.get('file')
     #
     # if file is None:
