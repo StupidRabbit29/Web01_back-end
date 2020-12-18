@@ -16,7 +16,7 @@ flask_cors.CORS(app, supports_credentials=True)
 def before_request():
   g.db = sqlite3.connect(DATABASE)
 
-git
+
 @app.teardown_request
 def teardown_request(exception):
   if hasattr(g, 'db'):
@@ -64,7 +64,7 @@ class CheckUserSignin(restful.Resource):
         if userexist == 1:
             rightpassword = query_db('select count(*) as count from user where name = ? and password = ?', (args['name'], args['password']), onlyonerow=True)['count']
             if rightpassword == 1:
-                userinfo = query_db('select name, phone_num, description, user_type, identity_type, identity_num, level, city from user where name = ?', (args['name'],))
+                userinfo = query_db('select id, name, phone_num, description, user_type, identity_type, identity_num, level, city from user where name = ?', (args['name'],))
                 return {'result': 'success', 'userinfo': userinfo}
             else:
                 return {'result': 'fail', 'errMsg': 'wrong password'}
@@ -165,7 +165,7 @@ class ChangeCallUp(restful.Resource):
 
 class GetCallupList(restful.Resource):
     def get(self):
-        callupinfo = query_db('select callup.id as id, user.name as owner, user.id as owner_id, callup.name as name, callup.type as type, user.city as city, callup.description as description, callup.member as member, end_time, img, create_time as ctime, callup.modify_time as mtime from user inner join callup on user.id = callup.user_id')
+        callupinfo = query_db('select callup.id as id, user.name as owner, user.id as owner_id, callup.name as name, callup.type as type, user.city as city, callup.description as description, callup.member as member, end_time, img, create_time as ctime, callup.modify_time as mtime, callup.state as state from user inner join callup on user.id = callup.user_id')
         for i in range(len(callupinfo)):
             callupinfo[i]['requests'] = query_db('select c.id as id, c.user_id as user_id, u.name as user_name, c.description as description, c.state as state from callup_request as c inner join user as u on c.user_id = u.id where callup_id = ?', (callupinfo[i]['id'],))
 
@@ -213,6 +213,29 @@ class ManageRequest(restful.Resource):
         return {'result': 'success'}
 
 
+class CallUpStastic(restful.Resource):
+    @use_args({
+        'month': fields.Str(required=True)
+    }, location='query')
+    def get(self, args):
+        profit = {}
+        if args['month'] == "all":
+            c = g.db.cursor()
+            for i in range(1,6):
+                c.execute("select sum(4*member) as sum from callup where state = 1 and type = ?", (str(i)))
+                temp = [dict((c.description[idx][0], value) for idx, value in enumerate(row)) for row in c.fetchall()][0]['sum']
+                profit[i] = temp if temp else 0
+            g.db.commit()
+        else:
+            c = g.db.cursor()
+            for i in range(1,6):
+                c.execute("select sum(4*member)  as sum from callup where state = 1 and type = ? and end_time like ?", (str(i), args['month']))
+                temp = [dict((c.description[idx][0], value) for idx, value in enumerate(row)) for row in c.fetchall()][0]['sum']
+                profit[i] = temp if temp else 0
+            g.db.commit()
+        return {'result': 'success', 'profit': profit}
+
+
 api.add_resource(HandleUserSignup, '/signup')
 api.add_resource(CheckUserSignin, '/signin')
 api.add_resource(ChangeUserInfo, '/changeuserinfo')
@@ -225,6 +248,8 @@ api.add_resource(ManageRequest, '/managereq')
 
 api.add_resource(AddCallUp, '/addcallup')
 api.add_resource(ChangeCallUp, '/changecallup')
+
+api.add_resource(CallUpStastic, '/callupstastic')
 
 if __name__ == '__main__':
   app.run(host='0.0.0.0', debug=True)
