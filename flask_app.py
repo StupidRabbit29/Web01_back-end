@@ -23,6 +23,28 @@ def teardown_request(exception):
     g.db.close()
 
 
+@app.route('/ttt', methods=["POST"])
+def ttt():
+    print(request.args, '--args')
+
+    return {'result': 'success'}
+
+    # 接收post请求上传的文件 test test
+    # file = request.files.get('file')
+    #
+    # if file is None:
+    #     # 表示没有发送文件
+    #     print('failed')
+    #     return "no file"
+    #
+    # # 直接使用上传的文件对象保存
+    # print('received')
+    # file.save("file")
+    #
+    # return "file received"
+
+
+
 def query_db(query, args=(), onlyonerow=False):
     c = g.db.execute(query, args)
     rv = [dict((c.description[idx][0], value) for idx, value in enumerate(row)) for row in c.fetchall()]
@@ -250,6 +272,11 @@ api.add_resource(AddCallUp, '/addcallup')
 api.add_resource(ChangeCallUp, '/changecallup')
 
 api.add_resource(CallUpStastic, '/callupstastic')
+
+
+
+# api.add_resource(Test, '/test')
+# api.add_resource(Receive, '/receive')
 
 if __name__ == '__main__':
   app.run(host='0.0.0.0', debug=True)
